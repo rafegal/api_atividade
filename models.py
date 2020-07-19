@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
-from sqlalchemy.orm import scoped_session, sessionmaker, relationship
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 engine = create_engine('sqlite:///atividades.db', convert_unicode=True)
@@ -13,7 +13,7 @@ class Pessoas(Base):
     id = Column(Integer, primary_key=True)
     nome = Column(String(40), index=True)
     idade = Column(Integer)
-
+    
     def __repr__(self):
         return '<Pessoa {}>'.format(self.nome)
 
@@ -29,8 +29,9 @@ class Atividades(Base):
     __tablename__='atividades'
     id = Column(Integer, primary_key=True)
     nome = Column(String(80))
+    status = Column(Boolean, default=0)
     pessoa_id = Column(Integer, ForeignKey('pessoas.id'))
-    pessoa = relationship("Pessoas")
+    pessoa = relationship("Pessoas", backref=backref("children", cascade="all,delete"))
 
     def __repr__(self):
         return '<Atividades {}>'.format(self.nome)
@@ -48,6 +49,7 @@ class Usuarios(Base):
     id = Column(Integer, primary_key=True)
     login = Column(String(20), unique=True)
     senha = Column(String(20))
+    ativo = Column(Boolean, default=0)
 
     def __repr__(self):
         return '<Usuario {}>'.format(self.login)
